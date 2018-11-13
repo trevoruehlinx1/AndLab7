@@ -89,7 +89,7 @@ namespace TidePredictor
                 {
                     tidesArray[i] =
                         tides[i].Location +"\t\t" + tides[i].Date.ToShortDateString() + "\t\t" + tides[i].Day + "\t\t" + tides[i].Time +
-                                           "\t\t" + tides[i].Height + "\t\t" + tides[i].HI_LOW;
+                                           "\t\t" + Convert.ToDouble(tides[i].Height) * 12 + "in.\t\t" + tides[i].HI_LOW;
                 }
 
                 Intent intent = new Intent(this, typeof(SecondActivity));
