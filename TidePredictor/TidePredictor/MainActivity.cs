@@ -10,6 +10,7 @@ using Android.Views;
 using SQLite;
 using System.IO;
 using TidePredictorDataAccess_Library;
+using Android.Content;
 
 namespace TidePredictor
 {
@@ -72,7 +73,7 @@ namespace TidePredictor
             /* ------- Query for selected date -------- */
 
             Button submitButton = FindViewById<Button>(Resource.Id.button1 );
-            ListView stocksListView = FindViewById<ListView>(Resource.Id.tideListView);
+            ListView tidesListView = FindViewById<ListView>(Resource.Id.tideListView);
             submitButton.Click += delegate
             {
                 DateTime date = datePicker.DateTime;
@@ -91,8 +92,10 @@ namespace TidePredictor
                                            "\t\t" + tides[i].Height + "\t\t" + tides[i].HI_LOW;
                 }
 
-                stocksListView.Adapter =
-                    new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, tidesArray);
+                Intent intent = new Intent(this, typeof(SecondActivity));
+                intent.PutExtra("array",tidesArray);
+                StartActivity(intent);
+
             };
         }
     }

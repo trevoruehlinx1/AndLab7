@@ -19,7 +19,14 @@ namespace TidePredictor
         {
             base.OnCreate(savedInstanceState);
 
+            string[] tideData = Intent.GetStringArrayExtra("array");
+
             // Create your application here
+            ListAdapter = new ArrayAdapter<string>(this, Resource.Layout.SimpleListItem1, tideData.ToArray());
+
+            ListView.TextFilterEnabled = true;
+
+            ListView.FastScrollEnabled = true;
         }
     }
 }
