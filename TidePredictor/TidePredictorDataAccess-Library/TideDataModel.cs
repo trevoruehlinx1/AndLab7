@@ -9,6 +9,7 @@ namespace TidePredictorDataAccess_Library
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
         public string Item { get; set; }   // this element holds the ones below
+        public string Location { get; set; }
         public DateTime Date { get; set; }
         public string Day { get; set; }
         public string Time { get; set; }

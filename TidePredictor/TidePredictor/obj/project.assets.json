@@ -29,6 +29,9 @@
           }
         }
       },
+      "sqlite-net/1.0.8": {
+        "type": "package"
+      },
       "sqlite-net-pcl/1.5.231": {
         "type": "package",
         "dependencies": {
@@ -404,6 +407,18 @@
         "sqlite.nuspec"
       ]
     },
+    "sqlite-net/1.0.8": {
+      "sha512": "LHhtlpuABfaryBVU5pGRTK6ZhpfS8hRfMouKx3whJTFPFRuSMhaHdvEHxLGU6VUpcOlQnpSOI/DW9DWbpvxrxw==",
+      "type": "package",
+      "path": "sqlite-net/1.0.8",
+      "files": [
+        ".signature.p7s",
+        "content/SQLite.cs",
+        "content/SQLiteAsync.cs",
+        "sqlite-net.1.0.8.nupkg.sha512",
+        "sqlite-net.nuspec"
+      ]
+    },
     "sqlite-net-pcl/1.5.231": {
       "sha512": "Sy+K+Wm2RZ+4b1uLHsaXvfR92Or71XxPXa2Id6msSOVkZKh+c+PUk/HQOAgxyhm3lhvysL0mK6Gd6mI69NJ9AA==",
       "type": "package",
@@ -766,7 +781,8 @@
   "projectFileDependencyGroups": {
     "MonoAndroid,Version=v8.1": [
       "TidePredictorDataAccess-Library >= 1.0.0",
-      "Xamarin.Android.Support.Design >= 27.0.2"
+      "Xamarin.Android.Support.Design >= 27.0.2",
+      "sqlite-net >= 1.0.8"
     ]
   },
   "packageFolders": {
@@ -809,6 +825,10 @@
           "Xamarin.Android.Support.Design": {
             "target": "Package",
             "version": "[27.0.2, )"
+          },
+          "sqlite-net": {
+            "target": "Package",
+            "version": "[1.0.8, )"
           }
         }
       }

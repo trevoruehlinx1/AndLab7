@@ -1,24 +1,26 @@
 ﻿using Android.App;
 using Android.Widget;
 using Android.OS;
+using System.Data;
 using Android.Support.V7.App;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using Android.Views;
-using System.Data.SQLite;
+using SQLite;
 using System.IO;
 using TidePredictorDataAccess_Library;
 
 namespace TidePredictor
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : ListActivity
+    public class MainActivity : Activity
     {
         List<string> tideData;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            SetContentView(Resource.Layout.activity_main);
 
             /* ------ copy and open the dB file using the SQLite-Net ORM ------ */
 
@@ -38,53 +40,61 @@ namespace TidePredictor
             // Open the database
             db = new SQLiteConnection(dbPath);
 
-            
+            /* ------ Spinner initialization ------ */
 
-            ListAdapter = new ArrayAdapter<string> (this, Resource.Layout.SimpleListItem1, tideData.ToArray());
-            //ListAdapter = new Adapter(tideData, this);
+            // Initialize the adapter for the spinner with city names
+            //List<string> locationNames = new List<string>();
 
-            ListView.TextFilterEnabled = true;
-            ListView.FastScrollEnabled = true;
+            var distinctLocations = db.Table<TideDataModel>().GroupBy(t => t.Location).Select(t => t.First());
+            var locationNames = distinctLocations.Select(t => t.Location).ToList();
+            var adapter = new ArrayAdapter(this, Android.Resource.Layout.SimpleSpinnerItem,locationNames);
+
+            var locationSpinner = FindViewById<Spinner>(Resource.Id.citySpinner);
+            locationSpinner.Adapter = adapter;
+
+            // Event handler for selected spinner item
+            string selectedLocation = "";
+            locationSpinner.ItemSelected += delegate (object sender, AdapterView.ItemSelectedEventArgs e)
+            {
+                Spinner spinner = (Spinner)sender;
+                selectedLocation = (string)spinner.GetItemAtPosition(e.Position);
+            };
+
+            /* ------- DatePicker initialization ------- */
+
+            var datePicker = FindViewById<DatePicker>(Resource.Id.datePicker);
+
+            TideDataModel selectedDatePredictioin =
+                db.Get<TideDataModel>((from t in db.Table<TideDataModel>() select t).Min(s => s.ID));
+            DateTime selectedDate = selectedDatePredictioin.Date;
+            datePicker.DateTime = selectedDate;
+
+            /* ------- Query for selected date -------- */
+
+            Button submitButton = FindViewById<Button>(Resource.Id.button1 );
+            ListView stocksListView = FindViewById<ListView>(Resource.Id.tideListView);
+            submitButton.Click += delegate
+            {
+                DateTime date = datePicker.DateTime;
+                string location = selectedLocation;
+                var tides = (from t in db.Table<TideDataModel>()
+                              where (t.Date == date)
+                              && (t.Location == location)
+                              select t).ToList();
+
+                int count = tides.Count;
+                string[] tidesArray = new string[count];
+                for (int i = 0; i < count; i++)
+                {
+                    tidesArray[i] =
+                        tides[i].Location +"\t\t" + tides[i].Date.ToShortDateString() + "\t\t" + tides[i].Day + "\t\t" + tides[i].Time +
+                                           "\t\t" + tides[i].Height + "\t\t" + tides[i].HI_LOW;
+                }
+
+                stocksListView.Adapter =
+                    new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, tidesArray);
+            };
         }
-        protected override void OnListItemClick(ListView l, View v, int position, long id)
-        {
-            XmlTideFileParser reader = new XmlTideFileParser(Assets.Open("AnnualTidePredictions.xml"));
-            var entry = reader.TideList[position];
-            string tideHeight = entry["pred_in_ft"].ToString();
-            double tideHeightInches = Convert.ToDouble(tideHeight)*12;
-            string tideHeightString = "Tide Height is " + tideHeightInches.ToString() + " Inches";
-            Toast.MakeText(Application,tideHeightString, ToastLength.Short).Show();
-        }
-
-
-        //OLD ONCREATE METHOD
-
-        //protected override void OnCreate(Bundle savedInstanceState)
-        //{
-        //    base.OnCreate(savedInstanceState);
-
-        //    XmlTideFileParser reader = new XmlTideFileParser(Assets.Open("AnnualTidePredictions.xml"));
-        //    tideData = new List<string>();
-        //    var stuff = reader.TideList;
-
-        //    reader.TideList.ForEach(tide => {
-        //        string highlow = tide["highlow"].ToString();
-        //        if (highlow == "H")
-        //            highlow = "High";
-        //        else
-        //            highlow = "Low";
-        //        string tideText = tide["day"].ToString() + " " + tide["date"].ToString().Substring(5, 2)
-        //                            + "/" + tide["date"].ToString().Substring(6, 2) + tide["date"].ToString().Substring(2, 2) + " "
-        //                           + tide["time"].ToString() + " " + highlow;
-        //        tideData.Add(tideText);
-        //    });
-
-        //    //ListAdapter = new ArrayAdapter<string> (this, Resource.Layout.SimpleListItem1, tideData.ToArray());
-        //    //ListAdapter = new Adapter(tideData, this);
-
-        //    ListView.TextFilterEnabled = true;
-        //    ListView.FastScrollEnabled = true;
-        //}
     }
 }
 

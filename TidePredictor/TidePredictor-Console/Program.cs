@@ -27,27 +27,36 @@ namespace ConsoleApp1
                 // A table already exixts, delete any data it contains
                 db.DeleteAll<TideDataModel>();
             }
+            AddTidesToDbFromXML(db, "Florence", "AnnualTidePredictions.xml");
+            AddTidesToDbFromXML(db, "Charleston", "CharlestonTides.xml");
+            AddTidesToDbFromXML(db, "Toledo", "ToledoTides.xml");
+            AddTidesToDbFromXML(db, "Umpqua", "UmpquaTides.xml");
 
+        }
+        private static void AddTidesToDbFromXML(SQLiteConnection db, string location, string file)
+        {
             //Add tides to the database
-            XmlTideFileParser reader = new XmlTideFileParser(File.Open(currentDir + @"/../../../../TidePredictor/Assets/AnnualTidePredictions.xml", FileMode.Open));
+            XmlTideFileParser reader = new XmlTideFileParser(File.Open(currentDir + @"/../../../../TidePredictor/Assets/" + file , FileMode.Open));
             List<string> tideData = new List<string>();
 
             //Add the tidelist to the db file.
             int count = 0;
-            reader.TideList.ForEach(tide => 
+            reader.TideList.ForEach(tide =>
             {
                 count++;
-                 db.Insert(new TideDataModel()
+                db.Insert(new TideDataModel()
                 {
                     //Item = tide["item"].ToString(),
+                    Location = location,
                     Date = Convert.ToDateTime(tide["date"]),
-                    Day =  tide["day"].ToString(),
+                    Day = tide["day"].ToString(),
                     Time = tide["time"].ToString(),
                     Height = tide["pred_in_ft"].ToString(),
                     HI_LOW = tide["highlow"].ToString(),
                 });
-                Console.WriteLine("Entered" + count);
+                Console.WriteLine(location);
             });
+
         }
     }
 }
